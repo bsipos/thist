@@ -83,15 +83,17 @@ func StringsMaxLen(s []string) int {
 
 func AutoLabel(s []float64, m float64) []string {
 	res := make([]string, len(s))
-	digits := -int(math.Log10(math.Abs(m) / 10))
 	nf := false
+	var digits int
 	if Min(s) < 0 {
 		nf = true
 	}
 	if math.Abs(m) == 0 {
 		digits = 5
+	} else {
+		digits = -int(math.Log10(math.Abs(m) / 5))
 	}
-	if math.Abs(m) < 1 && digits < 2 {
+	if math.Abs(m) < 1 && digits < 3 {
 		digits = 3
 	}
 	if digits <= 0 {
@@ -100,8 +102,22 @@ func AutoLabel(s []float64, m float64) []string {
 	if digits > 8 {
 		digits = 8
 	}
+	dl := 0
+	for _, x := range s {
+		dg := digits + int(math.Log10(math.Abs(x)+1.0))
+		if dg < 0 {
+			dg = 0
+		}
+		if dg > dl {
+			dl = dg
+		}
+	}
 	for i, x := range s {
-		f := "%." + strconv.Itoa(digits-int(math.Log10(math.Abs(x)+1))) + "f"
+		dg := dl - int(math.Log10(math.Abs(x)+1.0))
+		if dg < 0 {
+			dg = 0
+		}
+		f := "%." + strconv.Itoa(dg) + "f"
 		ff := f
 		if nf && !(x < 0) {
 			ff = " " + f
@@ -109,6 +125,14 @@ func AutoLabel(s []float64, m float64) []string {
 		res[i] = fmt.Sprintf(ff, x)
 	}
 	return res
+}
+
+func RoundFloat64(f float64, n float64) float64 {
+	if n == 0.0 {
+		return math.Round(f)
+	}
+	factor := math.Pow(10, float64(n))
+	return math.Round(f*factor) / factor
 }
 
 // LeftPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go

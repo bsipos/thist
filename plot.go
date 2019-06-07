@@ -7,7 +7,10 @@ import (
 	"strings"
 )
 
-func Plot(x, y []float64, xlab, ylab []string, title, info, symbol, negSymbol, space, top, vbar, hbar, tvbar string) string {
+func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symbol, negSymbol, space, top, vbar, hbar, tvbar string) string {
+	if len(x) == 0 {
+		return ""
+	}
 	// Based on: http://pyinsci.blogspot.com/2009/10/ascii-histograms.html
 	width, _ := terminal.Width()
 	height, _ := terminal.Height()
@@ -17,7 +20,8 @@ func Plot(x, y []float64, xlab, ylab []string, title, info, symbol, negSymbol, s
 	width -= uint(yll + 1)
 
 	res := strings.Repeat(space, yll+1) + CenterPad2Len(title, space, int(width)) + "\n"
-	height -= 5
+	height -= 4
+	height -= uint(len(info))
 
 	height -= uint(xll + 1)
 
@@ -100,7 +104,9 @@ func Plot(x, y []float64, xlab, ylab []string, title, info, symbol, negSymbol, s
 		}
 	}
 
-	res += strings.Repeat(space, yll+1) + CenterPad2Len(info, space, int(width)) + "\n"
+	for _, il := range info {
+		res += il + "\n"
+	}
 	return res
 }
 

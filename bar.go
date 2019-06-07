@@ -2,7 +2,7 @@ package thist
 
 //import "fmt"
 
-func BarSimple(x, y []float64, xlab, ylab []string, title, info string) string {
+func BarSimple(x, y []float64, xlab, ylab []string, title string, info []string) string {
 	if len(xlab) == 0 {
 		xlab = AutoLabel(x, Mean(AbsFloats(x)))
 	}
@@ -12,7 +12,7 @@ func BarSimple(x, y []float64, xlab, ylab []string, title, info string) string {
 	return Plot(x, y, xlab, ylab, title, info, "#", "@", " ", "_", "|", "-", "|")
 }
 
-func Bar(x, y []float64, xlab, ylab []string, title, info string) string {
+func Bar(x, y []float64, xlab, ylab []string, title string, info []string) string {
 	if len(xlab) == 0 {
 		xlab = AutoLabel(x, Mean(AbsFloats(x)))
 	}

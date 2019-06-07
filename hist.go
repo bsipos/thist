@@ -4,39 +4,74 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"strings"
 )
 
 type Hist struct {
-	Title     string
-	Info      string
-	BinMode   string
-	MaxBins   int
-	NrBins    int
-	DataCount int
-	DataMin   float64
-	DataMax   float64
-	DataMean  float64
-	DataSd    float64
-	Normalize bool
-	BinStart  []float64
-	BinEnd    []float64
-	Counts    []float64
-	m         float64
-	Precision float64
+	Title        string
+	BinMode      string
+	MaxBins      int
+	NrBins       int
+	DataCount    int
+	DataMap      map[float64]float64
+	DataMin      float64
+	DataMax      float64
+	DataMean     float64
+	DataSd       float64
+	Normalize    bool
+	BinStart     []float64
+	BinEnd       []float64
+	Counts       []float64
+	m            float64
+	MaxPrecision float64
+	Precision    float64
+	BinWidth     float64
+	Info         string
 }
 
-func NewHist(data []float64, title, info, binMode string, maxBins int, normalize bool) *Hist {
-	h := &Hist{title, info, binMode, maxBins, 0, 0, math.NaN(), math.NaN(), math.NaN(), math.NaN(), normalize, []float64{}, []float64{}, []float64{}, math.NaN(), math.Pow(1, -8)}
+func NewHist(data []float64, title, binMode string, maxBins int, normalize bool) *Hist {
+	h := &Hist{title, binMode, maxBins, 0, 0, make(map[float64]float64), math.NaN(), math.NaN(), math.NaN(), math.NaN(), normalize, []float64{}, []float64{}, []float64{}, math.NaN(), 14.0, 14.0, math.NaN(), ""}
 	if h.BinMode == "" {
 		h.BinMode = "fit"
 	}
 
-	for _, d := range data {
-		h.Update(d)
+	if len(data) > 0 {
+		min, max := data[0], data[0]
+		h.DataMean = data[0]
+		h.DataSd = 0.0
+		h.m = 0.0
+		for _, d := range data {
+			if d < min {
+				min = d
+			}
+			if d > max {
+				max = d
+			}
+			h.DataCount++
+			h.updateMoments(d)
+		}
+		h.DataMin = min
+		h.DataMax = max
+		h.BinStart, h.BinEnd, h.BinWidth = h.buildBins()
+		h.updatePrecision()
+		h.Counts = make([]float64, len(h.BinStart))
+		for _, v := range data {
+			c := RoundFloat64(v, h.Precision)
+			h.DataMap[c]++
+			i := sort.SearchFloat64s(h.BinStart, c) - 1
+			if i < 0 {
+				i = 0
+			}
+			h.Counts[i]++
+		}
+		h.updateInfo()
 	}
-	fmt.Println(h.Dump())
 
 	return h
+}
+
+func (h *Hist) updateInfo() {
+	h.Info = fmt.Sprintf("\tCount: %d\tMean: %f\tStdev: %f\tMin: %f\tMax: %f\tPrecision: %.0f\n", h.DataCount, h.DataMean, h.DataSd, h.DataMin, h.DataMax, h.Precision)
 }
 
 func (h *Hist) buildBins() ([]float64, []float64, float64) {
@@ -55,6 +90,10 @@ func (h *Hist) buildBins() ([]float64, []float64, float64) {
 		if n < 1 {
 			n = 1
 		}
+		if n > h.MaxBins {
+			n = h.MaxBins
+		}
+		w = (h.DataMax - h.DataMin) / float64(n)
 	}
 
 	s := make([]float64, n)
@@ -67,6 +106,14 @@ func (h *Hist) buildBins() ([]float64, []float64, float64) {
 
 	return s, e, w
 
+}
+
+func (h *Hist) NormCounts() []float64 {
+	res := make([]float64, len(h.Counts))
+	for i, c := range h.Counts {
+		res[i] = c / float64(h.DataCount) / h.BinWidth
+	}
+	return res
 }
 
 func (h *Hist) updateMoments(p float64) {
@@ -95,15 +142,15 @@ func (h *Hist) Update(p float64) {
 		h.DataMean = p
 		h.DataSd = 0.0
 		h.m = 0.0
-		h.buildBins()
-		bs, be, _ := h.buildBins()
+		h.BinStart, h.BinEnd, h.BinWidth = h.buildBins()
+		h.updatePrecision()
 		h.Counts = []float64{1.0}
-		h.BinStart = bs
-		h.BinEnd = be
-		return
 	} else {
 		h.updateMoments(p)
+		h.updateInfo()
 	}
+
+	h.DataMap[RoundFloat64(p, h.Precision)]++
 
 	if !math.IsNaN(oldMin) && p >= oldMin && !math.IsNaN(oldMax) && p <= oldMax {
 		var i int
@@ -121,18 +168,47 @@ func (h *Hist) Update(p float64) {
 		return
 	}
 
-	bs, be, bw := h.buildBins()
-	_ = bw
-	newCounts := make([]float64, len(bs))
+	h.BinStart, h.BinEnd, h.BinWidth = h.buildBins()
+	h.updatePrecision()
+	newCounts := make([]float64, len(h.BinStart))
 
-	h.BinStart = bs
-	h.BinEnd = be
+	for v, c := range h.DataMap {
+		i := sort.SearchFloat64s(h.BinStart, v) - 1
+		if i < 0 {
+			i = 0
+		}
+		newCounts[i] += c
+	}
+
 	h.Counts = newCounts
 
 }
 
+func (h *Hist) updatePrecision() {
+	h.Precision = math.Ceil(-math.Log10(h.BinWidth)) * 2.0
+	if h.Precision > h.MaxPrecision {
+		h.Precision = h.MaxPrecision
+	}
+	if h.Precision < 1.0 {
+		h.Precision = 1.0
+	}
+
+}
+
 func (h *Hist) Draw() string {
-	return ""
+	d := h.Counts
+	if h.Normalize {
+		d = h.NormCounts()
+	}
+	return Bar(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(h.Info, "\n"))
+}
+
+func (h *Hist) DrawSimple() string {
+	d := h.Counts
+	if h.Normalize {
+		d = h.NormCounts()
+	}
+	return BarSimple(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(h.Info, "\n"))
 }
 
 func (h *Hist) Summary() string {
