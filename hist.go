@@ -2,7 +2,9 @@ package thist
 
 import (
 	"fmt"
+	terminal "golang.org/x/crypto/ssh/terminal"
 	"math"
+	"os"
 	"sort"
 	"strings"
 )
@@ -32,7 +34,7 @@ type Hist struct {
 func NewHist(data []float64, title, binMode string, maxBins int, normalize bool) *Hist {
 	h := &Hist{title, binMode, maxBins, 0, 0, make(map[float64]float64), math.NaN(), math.NaN(), math.NaN(), math.NaN(), normalize, []float64{}, []float64{}, []float64{}, math.NaN(), 14.0, 14.0, math.NaN(), ""}
 	if h.BinMode == "" {
-		h.BinMode = "fit"
+		h.BinMode = "termfit"
 	}
 
 	if len(data) > 0 {
@@ -71,7 +73,7 @@ func NewHist(data []float64, title, binMode string, maxBins int, normalize bool)
 }
 
 func (h *Hist) updateInfo() {
-	h.Info = fmt.Sprintf("\tCount: %d\tMean: %f\tStdev: %f\tMin: %f\tMax: %f\tPrecision: %.0f\n", h.DataCount, h.DataMean, h.DataSd, h.DataMin, h.DataMax, h.Precision)
+	h.Info = fmt.Sprintf("Count: %d Mean: %f Stdev: %f Min: %f Max: %f Precision: %.0f\n", h.DataCount, h.DataMean, h.DataSd, h.DataMin, h.DataMax, h.Precision)
 }
 
 func (h *Hist) buildBins() ([]float64, []float64, float64) {
@@ -84,14 +86,25 @@ func (h *Hist) buildBins() ([]float64, []float64, float64) {
 	} else if h.BinMode == "fixed" {
 		n = h.MaxBins
 		w = (h.DataMax - h.DataMin) / float64(n)
-	} else if h.BinMode == "auto" || h.BinMode == "fit" {
+	} else if h.BinMode == "auto" || h.BinMode == "fit" || h.BinMode == "termfit" {
 		w = scottsRule(h.DataCount, h.DataSd)
 		n = int((h.DataMax - h.DataMin) / w)
 		if n < 1 {
 			n = 1
 		}
-		if n > h.MaxBins {
+		if h.BinMode == "fit" && n > h.MaxBins {
 			n = h.MaxBins
+		}
+		if h.BinMode == "termfit" {
+			tm, _, terr := terminal.GetSize(int(os.Stderr.Fd()))
+			if terr != nil {
+				tm = 80
+			}
+			tm -= 10
+			if n > int(tm) {
+				n = int(tm)
+			}
+
 		}
 		w = (h.DataMax - h.DataMin) / float64(n)
 	}
@@ -200,7 +213,7 @@ func (h *Hist) Draw() string {
 	if h.Normalize {
 		d = h.NormCounts()
 	}
-	return Bar(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(h.Info, "\n"))
+	return Bar(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(strings.TrimRight(h.Info, "\n"), "\n"))
 }
 
 func (h *Hist) DrawSimple() string {
@@ -208,7 +221,7 @@ func (h *Hist) DrawSimple() string {
 	if h.Normalize {
 		d = h.NormCounts()
 	}
-	return BarSimple(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(h.Info, "\n"))
+	return BarSimple(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(strings.TrimRight(h.Info, "\n"), "\n"))
 }
 
 func (h *Hist) Summary() string {

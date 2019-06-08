@@ -2,7 +2,8 @@ package thist
 
 import (
 	"fmt"
-	terminal "github.com/wayneashleyberry/terminal-dimensions"
+	terminal "golang.org/x/crypto/ssh/terminal"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -12,18 +13,21 @@ func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symb
 		return ""
 	}
 	// Based on: http://pyinsci.blogspot.com/2009/10/ascii-histograms.html
-	width, _ := terminal.Width()
-	height, _ := terminal.Height()
+	width, height, terr := terminal.GetSize(int(os.Stderr.Fd()))
+	if terr != nil {
+		width = 80
+		height = 24
+	}
 
 	xll := StringsMaxLen(xlab)
 	yll := StringsMaxLen(ylab)
-	width -= uint(yll + 1)
+	width -= yll + 1
 
 	res := strings.Repeat(space, yll+1) + CenterPad2Len(title, space, int(width)) + "\n"
 	height -= 4
-	height -= uint(len(info))
+	height -= len(info)
 
-	height -= uint(xll + 1)
+	height -= xll + 1
 
 	xf := xFactor(len(x), int(width))
 	if xf < 1 {
@@ -31,7 +35,7 @@ func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symb
 	}
 
 	if xll < xf-2 {
-		height += uint(xll - 1)
+		height += xll - 1
 	}
 
 	ny := normalizeY(y, int(height))
@@ -103,9 +107,8 @@ func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symb
 
 		}
 	}
-
 	for _, il := range info {
-		res += il + "\n"
+		res += strings.Repeat(space, yll) + vbar + CenterPad2Len(il, space, int(width)) + "\n"
 	}
 	return res
 }

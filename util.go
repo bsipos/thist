@@ -66,6 +66,10 @@ func ClearScreen() {
 	fmt.Printf("\033[2J")
 }
 
+func ClearScreenString() string {
+	return "\033[2J"
+}
+
 func StringsMaxLen(s []string) int {
 	if len(s) == 0 {
 		return 0
@@ -93,7 +97,7 @@ func AutoLabel(s []float64, m float64) []string {
 	} else {
 		digits = -int(math.Log10(math.Abs(m) / 5))
 	}
-	if math.Abs(m) < 1 && digits < 3 {
+	if math.Abs(m) < 10 && digits < 3 {
 		digits = 3
 	}
 	if digits <= 0 {
@@ -151,7 +155,10 @@ func RightPad2Len(s string, padStr string, overallLen int) string {
 
 // https://www.socketloop.com/tutorials/golang-aligning-strings-to-right-left-and-center-with-fill-example
 func CenterPad2Len(s string, fill string, n int) string {
-	div := n / 2
+	if len(s) >= n {
+		return s
+	}
+	div := (n - len(s)) / 2
 
 	return strings.Repeat(fill, div) + s + strings.Repeat(fill, div)
 }
