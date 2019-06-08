@@ -73,7 +73,7 @@ func NewHist(data []float64, title, binMode string, maxBins int, normalize bool)
 }
 
 func (h *Hist) updateInfo() {
-	h.Info = fmt.Sprintf("Count: %d Mean: %f Stdev: %f Min: %f Max: %f Precision: %.0f\n", h.DataCount, h.DataMean, h.DataSd, h.DataMin, h.DataMax, h.Precision)
+	h.Info = fmt.Sprintf("Count: %d Mean: %f Stdev: %f Min: %f Max: %f Precision: %.0f Bins: %d\n", h.DataCount, h.DataMean, h.DataSd, h.DataMin, h.DataMax, h.Precision, len(h.BinStart))
 }
 
 func (h *Hist) buildBins() ([]float64, []float64, float64) {
@@ -205,7 +205,6 @@ func (h *Hist) updatePrecision() {
 	if h.Precision < 1.0 {
 		h.Precision = 1.0
 	}
-
 }
 
 func (h *Hist) Draw() string {
