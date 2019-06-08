@@ -21,7 +21,6 @@
 package thist
 
 import (
-	"fmt"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
@@ -32,39 +31,38 @@ func (h *Hist) SaveImage(f string) {
 	data := plotter.Values(h.Counts)
 
 	if h.Normalize {
-		data = plotter.Values(h.NormCounts())
+		data = h.NormCounts()
 	}
 
 	p, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
+
 	p.Title.Text = h.Title
 	p.Y.Label.Text = "Count"
 	if h.Normalize {
 		p.Y.Label.Text = "Frequency"
 	}
 
-	w := vg.Points(20)
-
-	bars, err := plotter.NewBarChart(data, w)
-	if err != nil {
-		panic(err)
-	}
-	bars.LineStyle.Width = vg.Length(0)
-	bars.Color = plotutil.Color(2)
-	bars.Offset = w
-
-	p.Add(bars)
-
-	xlab := make([]string, len(h.BinStart))
-	for i, bin := range h.BinStart {
-		xlab[i] = fmt.Sprintf("%.3f", bin)
+	bins := make([]plotter.HistogramBin, len(h.BinStart))
+	for i, binStart := range h.BinStart {
+		bins[i] = plotter.HistogramBin{binStart, h.BinEnd[i], data[i]}
 	}
 
-	p.NominalX(xlab...)
+	ph := &plotter.Histogram{
+		Bins:      bins,
+		Width:     h.DataMax - h.DataMin,
+		FillColor: plotutil.Color(2),
+		LineStyle: plotter.DefaultLineStyle,
+	}
+	ph.LineStyle.Width = vg.Length(0.5)
+	ph.Color = plotutil.Color(0)
 
-	if err := p.Save(5*vg.Inch, 3*vg.Inch, f); err != nil {
+	p.Add(ph)
+	p.X.Label.Text = h.Info
+
+	if err := p.Save(11.69*vg.Inch, 8.27*vg.Inch, f); err != nil {
 		panic(err)
 	}
 }
