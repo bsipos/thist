@@ -6,6 +6,7 @@ import (
 	"math"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -73,7 +74,8 @@ func NewHist(data []float64, title, binMode string, maxBins int, normalize bool)
 }
 
 func (h *Hist) updateInfo() {
-	h.Info = fmt.Sprintf("Count: %d Mean: %f Stdev: %f Min: %f Max: %f Precision: %.0f Bins: %d\n", h.DataCount, h.DataMean, h.DataSd, h.DataMin, h.DataMax, h.Precision, len(h.BinStart))
+	digits := strconv.Itoa(int(h.Precision))
+	h.Info = fmt.Sprintf("Count: %d Mean: %."+digits+"f Stdev: %."+digits+"f Min: %."+digits+"f Max: %."+digits+"f Precision: %.0f Bins: %d\n", h.DataCount, h.DataMean, h.DataSd, h.DataMin, h.DataMax, h.Precision, len(h.BinStart))
 }
 
 func (h *Hist) buildBins() ([]float64, []float64, float64) {
