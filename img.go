@@ -27,6 +27,7 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
+// SaveImage saves a histogram to an image file using gonum plot.
 func (h *Hist) SaveImage(f string) {
 	data := plotter.Values(h.Counts)
 

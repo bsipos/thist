@@ -28,6 +28,7 @@ import (
 	"strings"
 )
 
+// Plot is a general plotting function for bar plots. It is used by Bar and BarSimple.
 func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symbol, negSymbol, space, top, vbar, hbar, tvbar string) string {
 	if len(x) == 0 {
 		return ""
@@ -133,6 +134,7 @@ func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symb
 	return res
 }
 
+// normalizeY normalizes y values to a maximum height.
 func normalizeY(y []float64, height int) []int {
 	max := Max(y)
 	res := make([]int, len(y))
@@ -143,6 +145,7 @@ func normalizeY(y []float64, height int) []int {
 	return res
 }
 
+// xFactor.
 func xFactor(n int, width int) int {
 	return int(width / n)
 }

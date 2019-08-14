@@ -30,6 +30,7 @@ import (
 	"strings"
 )
 
+// Hist is a struct holding the parameters and internal state of a histogram object.
 type Hist struct {
 	Title        string
 	BinMode      string
@@ -52,6 +53,7 @@ type Hist struct {
 	Info         string
 }
 
+// NewHist initilizes a new histogram object.  If data is not nil the data points are processed and the state is updated.
 func NewHist(data []float64, title, binMode string, maxBins int, normalize bool) *Hist {
 	h := &Hist{title, binMode, maxBins, 0, 0, make(map[float64]float64), math.NaN(), math.NaN(), math.NaN(), math.NaN(), normalize, []float64{}, []float64{}, []float64{}, math.NaN(), 14.0, 14.0, math.NaN(), ""}
 	if h.BinMode == "" {
@@ -93,6 +95,7 @@ func NewHist(data []float64, title, binMode string, maxBins int, normalize bool)
 	return h
 }
 
+// updateInfo updates the info string based on the current internal state.
 func (h *Hist) updateInfo() {
 	digits := strconv.Itoa(int(h.Precision))
 	h.Info = fmt.Sprintf("Count: %d Mean: %."+digits+"f Stdev: %."+digits+"f Min: %."+digits+"f Max: %."+digits+"f Precision: %.0f Bins: %d\n", h.DataCount, h.DataMean, h.DataSd, h.DataMin, h.DataMax, h.Precision, len(h.BinStart))
@@ -143,6 +146,7 @@ func (h *Hist) buildBins() ([]float64, []float64, float64) {
 
 }
 
+// NormCounts returns the normalised counts for each bin.
 func (h *Hist) NormCounts() []float64 {
 	res := make([]float64, len(h.Counts))
 	for i, c := range h.Counts {
@@ -151,6 +155,7 @@ func (h *Hist) NormCounts() []float64 {
 	return res
 }
 
+// updateMoments calculates the new mean and sd of the dataset after adding a new data point p.
 func (h *Hist) updateMoments(p float64) {
 	oldMean := h.DataMean
 	h.DataMean += (p - h.DataMean) / float64(h.DataCount)
@@ -158,11 +163,14 @@ func (h *Hist) updateMoments(p float64) {
 	h.DataSd = math.Sqrt(h.m / float64(h.DataCount))
 }
 
+// scottsRule calculates the number of histogram bins based on Scott's rule:
+// https://en.wikipedia.org/wiki/Histogram#Scott's_normal_reference_rule
 func scottsRule(n int, sd float64) float64 {
 	h := (3.5 * sd) / math.Pow(float64(n), 1.0/3.0)
 	return h
 }
 
+// Update adds a new data point and updates internal state.
 func (h *Hist) Update(p float64) {
 	h.DataCount++
 	oldMin := h.DataMin
@@ -219,6 +227,8 @@ func (h *Hist) Update(p float64) {
 
 }
 
+// updatePrecision claculates the precision to use for binnig based on the
+// bin width and the maximum allowed precision.
 func (h *Hist) updatePrecision() {
 	h.Precision = math.Ceil(-math.Log10(h.BinWidth)) * 2.0
 	if h.Precision > h.MaxPrecision {
@@ -229,6 +239,7 @@ func (h *Hist) updatePrecision() {
 	}
 }
 
+// Draw calls Bar to draw the hsitogram to the terminal.
 func (h *Hist) Draw() string {
 	d := h.Counts
 	if h.Normalize {
@@ -237,6 +248,7 @@ func (h *Hist) Draw() string {
 	return Bar(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(strings.TrimRight(h.Info, "\n"), "\n"))
 }
 
+// DrawSimple calls BarSimple to draw the hsitogram to the terminal.
 func (h *Hist) DrawSimple() string {
 	d := h.Counts
 	if h.Normalize {
@@ -245,11 +257,13 @@ func (h *Hist) DrawSimple() string {
 	return BarSimple(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(strings.TrimRight(h.Info, "\n"), "\n"))
 }
 
+// Summary return a string summary of the internal state of a Hist object.
 func (h *Hist) Summary() string {
-	res := ""
+	res := "" // FIXME: TODO
 	return res
 }
 
+// Dump prints the bins and counts to the standard output.
 func (h *Hist) Dump() string {
 	res := "Bin\tBinStart\tBinEnd\tCount\n"
 

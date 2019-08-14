@@ -27,6 +27,7 @@ import (
 	"strings"
 )
 
+// Max calculates the maximum of a float64 slice.
 func Max(s []float64) float64 {
 	if len(s) == 0 {
 		return math.NaN()
@@ -41,6 +42,7 @@ func Max(s []float64) float64 {
 	return max
 }
 
+// Min calculates the minimum of a float64 slice.
 func Min(s []float64) float64 {
 	if len(s) == 0 {
 		return math.NaN()
@@ -55,6 +57,7 @@ func Min(s []float64) float64 {
 	return max
 }
 
+// Mean calculates the mean of a float64 slice.
 func Mean(s []float64) float64 {
 	if len(s) == 0 {
 		return math.NaN()
@@ -67,6 +70,7 @@ func Mean(s []float64) float64 {
 	return sum / float64(len(s))
 }
 
+// AbsFloats calculates the absolute value of a float64 slice.
 func AbsFloats(s []float64) []float64 {
 	res := make([]float64, len(s))
 	for i, x := range s {
@@ -75,6 +79,7 @@ func AbsFloats(s []float64) []float64 {
 	return res
 }
 
+// Abs calculates the absolute value of an integer.
 func Abs(n int) int {
 	if n < 0 {
 		return -n
@@ -82,14 +87,17 @@ func Abs(n int) int {
 	return n
 }
 
+// ClearScreen uses control characters to clear terminal.
 func ClearScreen() {
 	fmt.Printf("\033[2J")
 }
 
+// ClearScreen return the control characters to clear terminal.
 func ClearScreenString() string {
 	return "\033[2J"
 }
 
+// StringsMaxLen returns the length of a longest string in a slice.
 func StringsMaxLen(s []string) int {
 	if len(s) == 0 {
 		return 0
@@ -105,6 +113,7 @@ func StringsMaxLen(s []string) int {
 
 }
 
+// AutoLabel generates automatic labeling based on heuristics-based rounding of the values in s.
 func AutoLabel(s []float64, m float64) []string {
 	res := make([]string, len(s))
 	nf := false
@@ -151,6 +160,7 @@ func AutoLabel(s []float64, m float64) []string {
 	return res
 }
 
+// RoundFloat64 rounds a float value to the given precision.
 func RoundFloat64(f float64, n float64) float64 {
 	if n == 0.0 {
 		return math.Round(f)
@@ -159,20 +169,23 @@ func RoundFloat64(f float64, n float64) float64 {
 	return math.Round(f*factor) / factor
 }
 
-// LeftPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go
+// LeftPad2Len left pads a string to a given length.
+// https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func LeftPad2Len(s string, padStr string, overallLen int) string {
 	var padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
 	var retStr = strings.Repeat(padStr, padCountInt) + s
 	return retStr[(len(retStr) - overallLen):]
 }
 
-// RightPad2Len https://github.com/DaddyOh/golang-samples/blob/master/pad.go
+// RightPad2Len right pads a string to a given length.
+// https://github.com/DaddyOh/golang-samples/blob/master/pad.go
 func RightPad2Len(s string, padStr string, overallLen int) string {
 	var padCountInt = 1 + ((overallLen - len(padStr)) / len(padStr))
 	var retStr = s + strings.Repeat(padStr, padCountInt)
 	return retStr[:overallLen]
 }
 
+//  CenterPad2Len center pads a string to a given length.
 // https://www.socketloop.com/tutorials/golang-aligning-strings-to-right-left-and-center-with-fill-example
 func CenterPad2Len(s string, fill string, n int) string {
 	if len(s) >= n {
