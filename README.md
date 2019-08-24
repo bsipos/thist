@@ -6,6 +6,45 @@ thist - a go package for calculating online histograms with plotting to the term
 Example
 -------
 
-https://github.com/bsipos/thist/blob/6e1491e63cd0f6019382333baf1aacc6f8a580b0/examples/basic.go#L1-L37
+```go
+package main
 
+import (
+        "fmt"
+        "github.com/bsipos/thist"
+        "math/rand"
+        "time"
+)
 
+// randStream return a channel filled with endless normal random values
+func randStream() chan float64 {
+        c := make(chan float64)
+        go func() {
+                for {
+                        c <- rand.NormFloat64()
+                }
+        }()
+        return c
+}
+
+func main() {
+        // create new histogram
+        h := thist.NewHist(nil, "Example histogram", "auto", -1, true)
+        c := randStream()
+
+        i := 0
+        for {
+                // add data point to hsitogram
+                h.Update(<-c)
+                if i%50 == 0 {
+                        // draw histogram
+                        fmt.Println(h.Draw())
+                        time.Sleep(time.Second)
+                }
+                i++
+        }
+}
+
+```
+
+[![demo video](http://img.youtube.com/vi/7mrs1QGDyys/0.jpg)](http://www.youtube.com/watch?v=7mrs1QGDyys)
