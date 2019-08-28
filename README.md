@@ -48,3 +48,10 @@ func main() {
 ```
 
 [![demo video](http://img.youtube.com/vi/7mrs1QGDyys/0.jpg)](http://www.youtube.com/watch?v=7mrs1QGDyys)
+
+TODO
+----
+
+- Add more details on online histogram generation.
+- Add separate object for online estimation of moments.
+- Maybe add tcell as a back-end?
