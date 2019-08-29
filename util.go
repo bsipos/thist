@@ -92,7 +92,7 @@ func ClearScreen() {
 	fmt.Printf("\033[2J")
 }
 
-// ClearScreen return the control characters to clear terminal.
+// ClearScreenString returns the control characters to clear terminal.
 func ClearScreenString() string {
 	return "\033[2J"
 }
