@@ -23,10 +23,10 @@ package thist
 // BarSimple plots a bar plot on the terminal. Does not use unicode charcters.
 func BarSimple(x, y []float64, xlab, ylab []string, title string, info []string) string {
 	if len(xlab) == 0 {
-		xlab = AutoLabel(x, Mean(AbsFloats(x)))
+		xlab = AutoLabel(x, mean(absFloats(x)))
 	}
 	if len(ylab) == 0 {
-		ylab = AutoLabel(y, Mean(AbsFloats(y)))
+		ylab = AutoLabel(y, mean(absFloats(y)))
 	}
 	return Plot(x, y, xlab, ylab, title, info, "#", "@", " ", "_", "|", "-", "|")
 }
@@ -34,10 +34,10 @@ func BarSimple(x, y []float64, xlab, ylab []string, title string, info []string)
 // Bar plots a bar plot on the terminal. It makes use of unicode characters.
 func Bar(x, y []float64, xlab, ylab []string, title string, info []string) string {
 	if len(xlab) == 0 {
-		xlab = AutoLabel(x, Mean(AbsFloats(x)))
+		xlab = AutoLabel(x, mean(absFloats(x)))
 	}
 	if len(ylab) == 0 {
-		ylab = AutoLabel(y, Mean(AbsFloats(y)))
+		ylab = AutoLabel(y, mean(absFloats(y)))
 	}
 	return Plot(x, y, xlab, ylab, title, info, "\u2588", "\u2591", " ", "_", "\u2502", "\u2500", "\u2524")
 }
