@@ -81,7 +81,7 @@ func NewHist(data []float64, title, binMode string, maxBins int, normalize bool)
 		h.updatePrecision()
 		h.Counts = make([]float64, len(h.BinStart))
 		for _, v := range data {
-			c := RoundFloat64(v, h.Precision)
+			c := roundFloat64(v, h.Precision)
 			h.DataMap[c]++
 			i := sort.SearchFloat64s(h.BinStart, c) - 1
 			if i < 0 {
@@ -193,7 +193,7 @@ func (h *Hist) Update(p float64) {
 		h.updateInfo()
 	}
 
-	h.DataMap[RoundFloat64(p, h.Precision)]++
+	h.DataMap[roundFloat64(p, h.Precision)]++
 
 	if !math.IsNaN(oldMin) && p >= oldMin && !math.IsNaN(oldMax) && p <= oldMax {
 		var i int

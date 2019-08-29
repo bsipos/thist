@@ -40,11 +40,11 @@ func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symb
 		height = 24
 	}
 
-	xll := StringsMaxLen(xlab)
-	yll := StringsMaxLen(ylab)
+	xll := stringsMaxLen(xlab)
+	yll := stringsMaxLen(ylab)
 	width -= yll + 1
 
-	res := strings.Repeat(space, yll+1) + CenterPad2Len(title, space, int(width)) + "\n"
+	res := strings.Repeat(space, yll+1) + centerPad2Len(title, space, int(width)) + "\n"
 	height -= 4
 	height -= len(info)
 
@@ -86,9 +86,9 @@ func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symb
 			}
 		}
 		for _, c := range ny {
-			if l == Abs(c) {
+			if l == abs(c) {
 				res += topBar
-			} else if l < Abs(c) {
+			} else if l < abs(c) {
 				if c < 0 {
 					res += nblock
 				} else {
@@ -106,7 +106,7 @@ func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symb
 		if xll < xf-2 {
 			res += strings.Repeat(space, yll) + vbar
 			for _, xl := range xlab {
-				res += vbar + RightPad2Len(xl, space, xf-1)
+				res += vbar + rightPad2Len(xl, space, xf-1)
 			}
 		} else {
 			for i := 0; i < xll; i++ {
@@ -129,14 +129,14 @@ func Plot(x, y []float64, xlab, ylab []string, title string, info []string, symb
 		}
 	}
 	for _, il := range info {
-		res += strings.Repeat(space, yll) + vbar + CenterPad2Len(il, space, int(width)) + "\n"
+		res += strings.Repeat(space, yll) + vbar + centerPad2Len(il, space, int(width)) + "\n"
 	}
 	return res
 }
 
 // normalizeY normalizes y values to a maximum height.
 func normalizeY(y []float64, height int) []int {
-	max := Max(y)
+	max := max(y)
 	res := make([]int, len(y))
 
 	for i, x := range y {
