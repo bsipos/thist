@@ -3,6 +3,8 @@ thist - a go package for calculating online histograms with plotting to the term
 [![Documentation](https://godoc.org/github.com/bsipos/thist?status.svg)](http://godoc.org/github.com/bsipos/thist)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bsipos/thist)](https://goreportcard.com/report/github.com/bsipos/thist)
 
+Check out the `watch` subcommands from the [csvtk](https://github.com/shenwei356/csvtk) and [seqkit](https://github.com/shenwei356/seqkit) tools to see the code in action.
+
 Example
 -------
 
