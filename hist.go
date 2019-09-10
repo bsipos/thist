@@ -239,13 +239,21 @@ func (h *Hist) updatePrecision() {
 	}
 }
 
+func (h *Hist) getMode() float64 {
+	return -1
+}
+
 // Draw calls Bar to draw the hsitogram to the terminal.
 func (h *Hist) Draw() string {
 	d := h.Counts
 	if h.Normalize {
 		d = h.NormCounts()
 	}
-	return Bar(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(strings.TrimRight(h.Info, "\n"), "\n"))
+	digits := strconv.Itoa(int(h.Precision))
+	modeStr := fmt.Sprintf(" %."+digits+"f", h.getMode())
+	info := strings.Split(strings.TrimRight(h.Info, "\n"), "\n")
+	info[0] += modeStr
+	return Bar(h.BinStart, d, []string{}, []string{}, h.Title, info)
 }
 
 // DrawSimple calls BarSimple to draw the hsitogram to the terminal.
