@@ -239,8 +239,16 @@ func (h *Hist) updatePrecision() {
 	}
 }
 
-func (h *Hist) getMode() float64 {
-	return -1
+// GetMode calculates the approximate mode of tehe dataset.
+func (h *Hist) GetMode() float64 {
+	maxi, maxc := 0, 0.0
+	for i, c := range h.NormCounts() {
+
+		if c >= maxc {
+			maxi, maxc = i, c
+		}
+	}
+	return (h.BinStart[maxi] + h.BinEnd[maxi]) / 2
 }
 
 // Draw calls Bar to draw the hsitogram to the terminal.
@@ -250,7 +258,7 @@ func (h *Hist) Draw() string {
 		d = h.NormCounts()
 	}
 	digits := strconv.Itoa(int(h.Precision))
-	modeStr := fmt.Sprintf(" %."+digits+"f", h.getMode())
+	modeStr := fmt.Sprintf(" ApproxMode: %."+digits+"f", h.GetMode())
 	info := strings.Split(strings.TrimRight(h.Info, "\n"), "\n")
 	info[0] += modeStr
 	return Bar(h.BinStart, d, []string{}, []string{}, h.Title, info)
@@ -262,7 +270,11 @@ func (h *Hist) DrawSimple() string {
 	if h.Normalize {
 		d = h.NormCounts()
 	}
-	return BarSimple(h.BinStart, d, []string{}, []string{}, h.Title, strings.Split(strings.TrimRight(h.Info, "\n"), "\n"))
+	digits := strconv.Itoa(int(h.Precision))
+	modeStr := fmt.Sprintf(" Mode: %."+digits+"f", h.GetMode())
+	info := strings.Split(strings.TrimRight(h.Info, "\n"), "\n")
+	info[0] += modeStr
+	return BarSimple(h.BinStart, d, []string{}, []string{}, h.Title, info)
 }
 
 // Summary return a string summary of the internal state of a Hist object.
