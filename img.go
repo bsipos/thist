@@ -66,7 +66,7 @@ func (h *Hist) SaveImage(f string) {
 
 	p.Add(ph)
 	digits := strconv.Itoa(int(h.Precision))
-	modeStr := fmt.Sprintf(" Mode: %."+digits+"f", h.GetMode())
+	modeStr := fmt.Sprintf(" ApproxMode: %."+digits+"f", h.GetMode())
 	info := strings.TrimRight(h.Info, "\n") + modeStr
 	p.X.Label.Text = info
 
