@@ -271,7 +271,7 @@ func (h *Hist) DrawSimple() string {
 		d = h.NormCounts()
 	}
 	digits := strconv.Itoa(int(h.Precision))
-	modeStr := fmt.Sprintf(" Mode: %."+digits+"f", h.GetMode())
+	modeStr := fmt.Sprintf(" ApproxMode: %."+digits+"f", h.GetMode())
 	info := strings.Split(strings.TrimRight(h.Info, "\n"), "\n")
 	info[0] += modeStr
 	return BarSimple(h.BinStart, d, []string{}, []string{}, h.Title, info)

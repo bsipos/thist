@@ -23,6 +23,7 @@ package thist
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -66,7 +67,7 @@ func (h *Hist) SaveImage(f string) {
 	p.Add(ph)
 	digits := strconv.Itoa(int(h.Precision))
 	modeStr := fmt.Sprintf(" Mode: %."+digits+"f", h.GetMode())
-	info := h.Info + modeStr
+	info := strings.TrimRight(h.Info, "\n") + modeStr
 	p.X.Label.Text = info
 
 	if err := p.Save(11.69*vg.Inch, 8.27*vg.Inch, f); err != nil {
