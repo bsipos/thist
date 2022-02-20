@@ -39,11 +39,7 @@ func (h *Hist) SaveImage(f string) {
 		data = h.NormCounts()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
-
+	p := plot.New()
 	p.Title.Text = h.Title
 	p.Y.Label.Text = "Count"
 	if h.Normalize {
